@@ -1,11 +1,5 @@
-import { normalizeResolvedSecretInputString } from "../../../src/config/types.secrets.js";
-
-export function normalizeSlackToken(raw?: unknown): string | undefined {
-  return normalizeResolvedSecretInputString({
-    value: raw,
-    path: "channels.slack.*.token",
-  });
-}
+// Slack plugin module implements token behavior.
+import { normalizeResolvedSecretInputString } from "openclaw/plugin-sdk/secret-input";
 
 export function resolveSlackBotToken(
   raw?: unknown,

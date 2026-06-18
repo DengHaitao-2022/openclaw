@@ -5,7 +5,6 @@
  * Consolidates duplicated formatUtcTimestamp / formatZonedTimestamp / resolveExplicitTimezone
  * that previously lived in envelope.ts and session-updates.ts.
  */
-
 /**
  * Validate an IANA timezone string. Returns the string if valid, undefined otherwise.
  */
@@ -18,12 +17,12 @@ export function resolveTimezone(value: string): string | undefined {
   }
 }
 
-export type FormatTimestampOptions = {
+type FormatTimestampOptions = {
   /** Include seconds in the output. Default: false */
   displaySeconds?: boolean;
 };
 
-export type FormatZonedTimestampOptions = FormatTimestampOptions & {
+type FormatZonedTimestampOptions = FormatTimestampOptions & {
   /** IANA timezone string (e.g., 'America/New_York'). Default: system timezone */
   timeZone?: string;
 };

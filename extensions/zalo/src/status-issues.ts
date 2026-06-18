@@ -1,5 +1,12 @@
-import type { ChannelAccountSnapshot, ChannelStatusIssue } from "openclaw/plugin-sdk/zalo";
-import { coerceStatusIssueAccountId, readStatusIssueFields } from "../../shared/status-issues.js";
+// Zalo plugin module implements status issues behavior.
+import type {
+  ChannelAccountSnapshot,
+  ChannelStatusIssue,
+} from "openclaw/plugin-sdk/channel-contract";
+import {
+  coerceStatusIssueAccountId,
+  readStatusIssueFields,
+} from "openclaw/plugin-sdk/extension-shared";
 
 const ZALO_STATUS_FIELDS = ["accountId", "enabled", "configured", "dmPolicy"] as const;
 

@@ -1,8 +1,10 @@
-import { formatAllowlistMatchMeta } from "../../../../src/channels/allowlist-match.js";
-import { issuePairingChallenge } from "../../../../src/pairing/pairing-challenge.js";
-import { upsertChannelPairingRequest } from "../../../../src/pairing/pairing-store.js";
+// Slack plugin module implements dm auth behavior.
+import { formatAllowlistMatchMeta } from "openclaw/plugin-sdk/allow-from";
+import { createChannelPairingChallengeIssuer } from "openclaw/plugin-sdk/channel-pairing";
+import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
 import { resolveSlackAllowListMatch } from "./allow-list.js";
 import type { SlackMonitorContext } from "./context.js";
+import { upsertChannelPairingRequest } from "./conversation.runtime.js";
 
 export async function authorizeSlackDirectMessage(params: {
   ctx: SlackMonitorContext;
@@ -19,7 +21,8 @@ export async function authorizeSlackDirectMessage(params: {
     await params.onDisabled();
     return false;
   }
-  if (params.ctx.dmPolicy === "open") {
+
+  if (params.ctx.dmPolicy === "open" && params.allowFromLower.includes("*")) {
     return true;
   }
 
@@ -37,11 +40,8 @@ export async function authorizeSlackDirectMessage(params: {
   }
 
   if (params.ctx.dmPolicy === "pairing") {
-    await issuePairingChallenge({
+    await createChannelPairingChallengeIssuer({
       channel: "slack",
-      senderId: params.senderId,
-      senderIdLine: `Your Slack user id: ${params.senderId}`,
-      meta: { name: senderName },
       upsertPairingRequest: async ({ id, meta }) =>
         await upsertChannelPairingRequest({
           channel: "slack",
@@ -49,6 +49,10 @@ export async function authorizeSlackDirectMessage(params: {
           accountId: params.accountId,
           meta,
         }),
+    })({
+      senderId: params.senderId,
+      senderIdLine: `Your Slack user id: ${params.senderId}`,
+      meta: { name: senderName },
       sendPairingReply: params.sendPairingReply,
       onCreated: () => {
         params.log(
@@ -56,7 +60,7 @@ export async function authorizeSlackDirectMessage(params: {
         );
       },
       onReplyError: (err) => {
-        params.log(`slack pairing reply failed for ${params.senderId}: ${String(err)}`);
+        params.log(`slack pairing reply failed for ${params.senderId}: ${formatErrorMessage(err)}`);
       },
     });
     return false;
